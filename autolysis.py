@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
 import os
 import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import requests
+import chardet
 import argparse
 
 # Configure environment variables
@@ -61,13 +61,28 @@ def generate_visualizations(data, output_dir):
 
     return image_paths
 
+# Function to load CSV file with encoding detection
+def load_csv_with_encoding(csv_file):
+    try:
+        # Detect encoding
+        with open(csv_file, 'rb') as f:
+            result = chardet.detect(f.read())
+            encoding = result['encoding']
+
+        print(f"Detected file encoding: {encoding}")
+
+        # Load the CSV with detected encoding
+        data = pd.read_csv(csv_file, encoding=encoding)
+        return data
+    except Exception as e:
+        print(f"Error loading CSV file: {e}")
+        return None
+
 # Main function
 def main(csv_file):
     # Load the CSV file
-    try:
-        data = pd.read_csv(csv_file)
-    except Exception as e:
-        print(f"Error loading CSV file: {e}")
+    data = load_csv_with_encoding(csv_file)
+    if data is None:
         return
 
     # Perform generic analysis
